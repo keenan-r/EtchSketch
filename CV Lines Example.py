@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+from Path_Functions import *
 
 image = cv.imread("images/self.jpg")
 imageBW = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -18,31 +19,37 @@ bins = [[[] for y in range(yBins)] for x in range(xBins)] #initialize array of l
 
 #cv.drawContours(image, contours, -1, (0, 255, 0), 2)
 #organize contours by cells
+contour_count = 0
 for contour in contours:
     if contour.size > 1:
+        contour_count += 1
         startPoint = contour[0][0]
         xBin = startPoint[0] // (imWidth / xBins)
         yBin = startPoint[1] // (imHeight / yBins)
         bins[int(xBin)][int(yBin)].append(contour)
 
-lastPoint = (0,0)
-#snake through bins
-for i in range(xBins * yBins):
-    yPos = i // xBins
-    xPos = i - (yPos * xBins)
-    if yPos % 2 == 1:
-        xPos = xBins - xPos
-    try:
-        for contour in bins[xPos][yPos]:
-            for i, point in enumerate(contour):
-                point = tuple(point[0])  # extract tuple from ndarray
-                cv.line(image, lastPoint, point, (0, 255, 0))
-                lastPoint = point
-                cv.imshow("start", image)
-                #cv.waitKey(1)
-    except:
-        x = 10
-        #TODO: Some cases where xPos = 11, 10
+#starting from closest contour to edge, draw, then look for nearest contour and draw that
+curr_contour = find_start_contour(contours, bins, xBins, yBins, imHeight, imWidth)
+last_point = tuple(curr_contour[0][0])
+curr_bin_ind = (0,0)
+while contour_count > 0:
+    #draw current contour
+    for i, point in enumerate(contour):
+        point = tuple(point[0])
+        cv.line(image, last_point, point, (0, 255, 0))
+        last_point = point
+        if i == len(contour) - 1:
+            curr_bin = (point[0] // (imWidth / xBins), point[1] // (imHeight / yBins))
+    contours.remove(contour)
+    contour_count -= 1
+
+    #find next contour by searching nearby bins for closest one
+    curr_bin = bins[curr_bin_ind[0]][curr_bin_ind[1]]
+    if len(curr_bin) > 0:
+        curr_contour = find_nearest(last_point, curr_bin)
+    else:
+        curr_contour = search_surrounding_bins(last_point)
+
 
 
 
