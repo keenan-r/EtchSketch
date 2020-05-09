@@ -1,10 +1,10 @@
-from math import *
+import math
 
 def first_point_y(contour):
-    return contour[0][0][1]
+    return contour[0][1]
 
 def first_point_x(contour):
-    return contour[0][0][0]
+    return contour[0][0]
 
 
 
@@ -42,11 +42,11 @@ def find_start_contour(contours, bins, xBins, yBins, imHeight, imWidth):
 def distance(point, contour):
     x = first_point_x(contour)
     y = first_point_y(contour)
-    return sqrt((x - point[0]) ** 2 + (y - point[1]) ** 2)
+    return math.sqrt((x - point[0]) ** 2 + (y - point[1]) ** 2)
 
 def find_nearest(point,  bin):
     nearest = None
-    min_dist = float('int')
+    min_dist = float('inf')
     for contour in bin:
         dist = distance(point, contour)
 
@@ -72,13 +72,17 @@ def surrounding_bins(curr_bin):
 
     return surr_bins
 
+def in_bounds(index, bins):
+    return 0 <= index[0] < len(bins) and 0 <= index[1] < len(bins[0])
+
+#todo: If there are no contours in surrounding binn, need to search next level out
 def search_surrounding_bins(point, curr_bin,  bins):
     nearest = None
-    min_dist = float('int')
+    min_dist = float('inf')
     surr_bins = surrounding_bins(curr_bin)
     for bin_ind in surr_bins:
         #make sure bin_ind is in bounds
-        if 0 <= bin_ind[0] < len(bins) and 0 <= bin_ind[1] < len(bins[0]):
+        if in_bounds(bin_ind, bins):
             near = find_nearest(point, bins[bin_ind[0]][bin_ind[1]])
             if distance(point, near) < min_dist:
                 min_dist = distance(point, near)
