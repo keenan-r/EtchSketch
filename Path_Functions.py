@@ -8,35 +8,16 @@ def first_point_x(contour):
 
 
 
-def find_start_contour(contours, bins, xBins, yBins, imHeight, imWidth):
+def find_start_contour(contours, imHeight, imWidth):
     # find starting contour by contour closest to edge
     start_contour = None
-    minDist = imHeight * imWidth
-    for x in range(xBins):
-        # go through top row bins, then bottom ro
-        for contour in bins[x][0]:
-            y_val = first_point_y(contour)
-            if y_val < minDist:
-                minDist = y_val
-                start_contour = contour
-        for contour in bins[x][yBins - 1]:
-            y_val = first_point_y(contour)
-            if imHeight - y_val < minDist:
-                minDist = y_val
-                start_contour = contour
+    minDist = float('inf')
+    for line in contours:
+        dist = min(first_point_x(line), first_point_y(line), imWidth-first_point_x(line), imHeight-first_point_y(line))
+        if dist < minDist:
+            minDist = dist
+            start_contour = line
 
-    for y in range(yBins):
-        # go through first column then last column
-        for contour in bins[0][y]:
-            x_val = first_point_x(contour)
-            if x_val < minDist:
-                minDist = x_val
-                start_contour = contour
-        for contour in bins[xBins - 1][y]:
-            x_val = first_point_x(contour)
-            if x_val < minDist:
-                minDist = x_val
-                start_contour = contour
     return start_contour
 
 def distance(point, contour):
@@ -44,17 +25,18 @@ def distance(point, contour):
     y = first_point_y(contour)
     return math.sqrt((x - point[0]) ** 2 + (y - point[1]) ** 2)
 
-def find_nearest(point,  bin):
-    nearest = None
+def find_nearest(curr_line,  contours):
+    nearest_line = None
     min_dist = float('inf')
-    for contour in bin:
-        dist = distance(point, contour)
-
-        if dist < min_dist:
-            nearest = contour
-            min_dist = dist
-
-    return nearest
+    curr_x = curr_line[len(curr_line)-1][0]
+    curr_y = curr_line[len(curr_line)-1][1]
+    for line in contours:
+        if curr_line != line:
+            dist = math.sqrt((curr_x - first_point_x(line))**2 + (curr_y - first_point_y(line))**2)
+            if dist < min_dist:
+                min_dist = dist
+                nearest_line = line
+    return nearest_line
 
 
 def surrounding_bins(curr_bin):
