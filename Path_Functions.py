@@ -6,6 +6,11 @@ def first_point_y(contour):
 def first_point_x(contour):
     return contour[0][0]
 
+def last_point_y(contour):
+    return contour[len(contour)-1][1]
+
+def last_point_x(contour):
+        return contour[len(contour)-1][0]
 
 
 def find_start_contour(contours, imHeight, imWidth):
@@ -39,6 +44,14 @@ def find_nearest(curr_line,  contours):
             if dist < min_dist:
                 min_dist = dist
                 nearest_line = line
+
+            #also check dist to last point in contour
+            dist_to_last = math.sqrt((curr_x - last_point_x(line))**2 + (curr_y - last_point_y(line))**2)
+            if dist_to_last < min_dist:
+                min_dist = dist_to_last
+                nearest_line = list(reversed(line))
+
+
     return nearest_line
 
 

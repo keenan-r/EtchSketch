@@ -3,7 +3,7 @@ import numpy as np
 from Path_Functions import *
 import pickle
 
-image = cv.imread("images/self.jpg")
+image = cv.imread("images/alex.jpg")
 imageBW = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 imageBW = cv.GaussianBlur(imageBW, (9, 9), 0)
 canny = cv.Canny(imageBW, 30, 40)
@@ -42,7 +42,11 @@ while len(contours) > 0:
         point_list.append(point)
         last_point = point
     ordered_lines.append(curr_contour)
-    contours.remove(curr_contour)
+    #definitely need a better way of doing this, but if contour gets reversed need to still remove
+    try:
+        contours.remove(curr_contour)
+    except:
+        contours.remove(list(reversed(curr_contour)))
     curr_contour = find_nearest(curr_contour, contours)
 
 #remove lines that are small to speed up execution on etch
