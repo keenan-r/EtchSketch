@@ -1,5 +1,13 @@
 import math
 
+class Path:
+
+    def __init__(self):
+        self.pointList = []
+        self.cost = 0
+
+
+
 def first_point_y(contour):
     return contour[0][1]
 
@@ -33,6 +41,7 @@ def distance(point, contour):
 def point_dist(p1, p2):
     return math.sqrt( (p1[0] - p2[0])**2 +  (p1[1] - p2[1])**2)
 
+
 def find_nearest(curr_line,  contours):
     nearest_line = None
     min_dist = float('inf')
@@ -53,6 +62,27 @@ def find_nearest(curr_line,  contours):
 
 
     return nearest_line
+
+# trying slow approach to allow backtracking. Check every point on curr_contour compared with every point on every other
+#contour
+def find_nearest_backtrack(curr_line,  contours):
+    nearest_line = None
+    min_dist = float('inf')
+    curr_x = curr_line[len(curr_line)-1][0]
+    curr_y = curr_line[len(curr_line)-1][1]
+    i = 0
+    for line in contours:
+        if curr_line != line:
+            for curr_contour_point in curr_line:
+                for point in line:
+                    dist = math.sqrt((curr_contour_point[0] - point[0])**2 + (curr_contour_point[1] - point[1])**2)
+                    if dist < min_dist:
+                        min_dist = dist
+                        nearest_line = line
+                        nearest_point = point
+        print(i)
+        i+=1
+    return nearest_line, point
 
 
 def surrounding_bins(curr_bin):
@@ -86,3 +116,5 @@ def search_surrounding_bins(point, curr_bin,  bins):
                 min_dist = distance(point, near)
                 nearest = near
     return nearest
+
+
